@@ -1,0 +1,65 @@
+<form name="frm" method="post" action="update" enctype="multipart/form-data">
+    <table id="insert">
+        <tr>
+            <td width=100 class="title">상품번호</td>
+            <td width=500><input type="text" name="code" size="5" value="<%=vo.code%>" readonly></td>
+        </tr>
+        <tr>
+            <td width=100 class="title">상품명</td>
+            <td width=500><input type="text" name="title" size="50" value="<%=vo.title%>"></td>
+        </tr>
+        <tr>
+            <td width=100 class="title">상품가격</td>
+            <td width=500><input type="text" name="price" size="5" value="<%=vo.price%>">원</td>
+        </tr>
+        <tr>
+            <td width=100 class="title">이미지</td>
+            <td width=500>
+                <input type="file" name="image" style="display: none;">
+                <img src="/images/<%=vo.image%>" id="image"  width="150px" style="cursor: pointer;">
+                <input type="hidden" name="oldImage" value="<%=vo.image%>">
+            </td>
+        </tr>
+    </table>
+    <div id="buttons">
+        <input type="submit" value="상품수정" class="button">
+        <input type="reset" value="수정취소" class="button">
+        <input type="button" value="상품목록" class="button" onclick="location.href='/'">
+    </div>
+</form>
+
+
+<script>
+    //submit 눌렀을때
+    $(frm).on("submit",function(e){
+        e.preventDefault();
+        var title=$(frm.title).val();
+        var price=$(frm.price).val();
+        var image=$(frm.image).val();
+
+        if(title==""){
+            alert("상품명을 입력하세요.");
+            $(frm.title).focus();
+        }else if(price==""){
+            alert("상품가격을 입력하세요.");
+            $(frm.price).focus();
+        }else{
+            if(!confirm("상품을 수정하시겠습니까?")) return;
+            frm.submit();
+        }
+    })
+
+    //이미지를 클릭한 경우
+    $("#image").on("click", function(){
+        $(frm.image).click();
+    });
+
+    //선택이미지 미리보기
+    $(frm.image).on("change", function(e){
+        var reader=new FileReader();
+        reader.readAsDataURL(this.files[0]);
+        reader.onload=function(e){
+            $("#image").attr("src", e.target.result);
+        }
+    });
+</script>

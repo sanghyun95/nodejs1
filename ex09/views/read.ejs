@@ -1,0 +1,93 @@
+<style>
+    #box {overflow: hidden;}
+    #box img{
+        width: 500px;
+    }
+    #image {float: left;}
+</style>
+<h1>성품정보</h1>
+<div id="box">
+    <div id="image">
+        <img src="/images/<%=vo.image%>">
+    </div>
+    <div id="info">
+        <h2><%=vo.title%></h2>
+        <div><%=vo.fprice%>원</div>
+        <p>지금은 비즈니스 세계에 입문하기에 기막히게 좋은 시기다. 왜냐하면 비즈니스 세계는 지난 50년 동안의 변화보다 향후 10년간 훨씬 더 많이 변할 것이기 때문이다.</p>
+        <div id="buttons">
+            <button>바로구매</button>
+            <button>장바구니</button>
+        </div>
+    </div>
+</div>
+<hr/>
+<h3><%=vo.title%>의 리뷰목록</h3>
+<!--리뷰등록-->
+<table>    
+    <% if(userid==null){ %>
+        <tr>
+            <td width=600>리뷰를 작성하시려면 <a herf="/users/login">로그인</a>하세요!</td>
+        </tr>
+    <% } else {%>
+        <tr>
+            <td width=650>
+                <textarea rows="5" cols="90" id="text"></textarea>
+                <button id="btnInsert">글등록</button> 
+            </td>
+        </tr>
+        <% } %>
+</table>
+<table id="review"></table>
+<script id="temp" type="text/x-handlebars-template">
+    {{#each .}}
+    <div class="row" style="border-bottom: 1px;">
+        <tr>
+            <td width=100 class="title">작성자</td>
+            <td width=200>{{uid}}</td>
+            <td width=100 class="title">작성일</td>
+            <td width=200>{{fdate}}</td>
+        </tr>
+        <tr>            
+            <td colspan="4">{{text}}
+            <button id="btnDelete">삭제</button>
+        </td>
+        </tr>
+    </div>
+    {{/each}}
+</script>
+<script>
+    var code = "<%=vo.code%>";
+        var uid = "<%=userid%>";
+        getReview();
+        $("#btnInsert").on("click", function () {
+            var text = $("#text").val();
+            if (text == "") {
+                alert("내용을 입력하세요!")
+                $("text").focus();
+            } else {
+                if (!confirm(uid + "님의 글을 등록하실래요?")) return;
+                $.ajax({
+                    type: "post",
+                    data: { code: code, uid: uid, text: text },
+                    url: "/review/insert",
+                    success: function () {
+                        alert("글등록완료!");
+                        getReview();
+                }
+            });
+        }
+    });
+    function getReview(){
+        $.ajax({
+            type:"get",
+            dataType: "json",
+            data:{code:code},
+            url:"/review/list",
+            success:function(data){
+                var template = Handlebars.compile($("#temp").html());
+                $("#review").html(template(data));
+            }
+        })
+
+    }
+</script>

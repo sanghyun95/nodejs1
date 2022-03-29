@@ -1,0 +1,70 @@
+<style>
+    #condition {
+        width: 880px;
+        margin:0px auto;
+        padding: 20px;
+        border-bottom: 1px dotted gray;
+
+    }
+    .box{
+        cursor: pointer;
+    }
+</style>
+<div id="condition">
+    <input type="text" placeholder="검색어" id="word">
+    <button id="search">검색</button>
+    검색데이터:<span id="total"></span>
+</div>
+<div id="container"></div>
+<script id="temp" type="text/x-handlebars-template">
+{{#each rows}}
+<div class="box">
+    <img src="/images/{{image}}"  width=150px; onclick="location.href='/food/read?code={{code}}'">
+    <div class="title">[{{code}}]{{title}}</div>
+    <div>{{price}}원</div>
+</div>
+{{/each}}
+</script>
+<div id="buttons">
+    <button id="prev">이전</button>
+    <span id="curpage"></span>
+    <button id="next">다음</button>
+</div>
+<script>
+    var page=1;
+    var word=$("#word").val();
+    getFood();
+    $("#word").on('keydown', function(e){
+        if(e.keyCode==13) $("#search").click();
+    });
+    $("#search").on("click",function(){
+        word=$("#word").val();
+        page=1;
+        getFood();
+    });
+    $("#prev").on("click",function(){
+        page--;
+        getFood();
+    });
+    $("#next").on("click",function(){
+        page++;
+        getFood();
+    });
+    function getFood(){
+        $.ajax({
+        type: "get",
+        dataType: "json",
+        url: "/food/list",
+        data:{page:page, word:word},
+        success:function(data){
+            var template = Handlebars.compile($("#temp").html());
+            $("#container").html(template(data));
+            var lastPage=Math.ceil(data.total/8);
+            $("#curpage").html(page +"/"+lastPage);
+            $("#total").html(data.total);
+        }
+    })
+    }
+   
+      
+</script>

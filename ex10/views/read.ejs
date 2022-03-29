@@ -1,0 +1,116 @@
+<style>
+    #book{width: 900px; overflow: hidden; margin:0px auto; border: 1px solid gray; padding: 10px;}
+    #book .image {width: 400px; float: left;}
+    #book .info {width: 400px; float: left;}
+    hr {margin: 20px 1px;}
+    li {margin: 20px ; font-size: 15px;}
+    #review {width: 800px; margin: 0px auto; border-bottom:solid 1px gray;}
+    .noneSmall {display: none;}
+</style>
+<div id="book">
+    <div class="image">
+        <img src="/images/<%=vo.image%>" width=400>
+    </div>
+    <div class="info">
+        <h3>[<%=vo.code%>]<%=vo.title%></h3>
+    </hr>
+    <ul>
+        <li>가격:<%=vo.fprice%>원</li>
+        <li>출간: 2020.01.01</li>
+        <li>페이지:500쪽</li>
+        <li>물류코드:2552</li>
+    </ul>
+    <hr/>
+    <div style="text-align:center;" >
+        <button>바로구매</button>
+        <button>장바구니</button>
+    </div>
+</div>
+</div>
+<div style="width: 800px; margin: 0px auto; margin-top: 20px;">
+    <textarea id="text" cols="116" rows=5></textarea>
+    <button id="btnInsert" style="float: right;">리뷰쓰기</button>
+   </div>
+<div id="review"></div>
+<script id="temp" type="text/x-handlebars-template">
+{{#each .}}
+<div style="font-size: 15px; color: gray; padding: 10px;">
+    {{uid}} | {{fdate}}
+</div>
+<div style="border-bottom: 1px solid gray;padding: 20px;">
+    {{text}}
+    <button class="{{display uid}}" reviewid="{{id}}">삭제</button>
+</div>
+{{/each}}
+</script>
+<script>
+    Handlebars.registerHelper("display", function(uid){
+        if(uid=="<%=userid%>"){
+            return "small";
+        }else{
+            return "noneSmall";
+        }
+    });
+</script>
+<script>
+    var code="<%=vo.code%>";
+    var userid="<%=userid%>";
+    getreview();
+
+    if(userid==""){
+        $("#text").hide();
+    }else{
+        $("#text").show();
+    }
+
+    //삭제버튼을 클릭한경우
+    $("#review").on("click", "button", function(){
+        var id=$(this).attr("reviewid");
+        if(!confirm(id+"을(를) 삭제하실래요?")) return;
+        $.ajax({
+            type: "post",
+            url:"/review/delete",
+            data:{id:id},
+            success:function(){
+                alert("리뷰삭제완료!");
+                getreview();
+            }
+        })
+    })
+    $("#btnInsert").on("click",function(){
+        if(userid==""){
+            alert("로그인한 후 리뷰를 작성하세요!");
+            location.href="/users/login";
+        }else{
+            //리뷰작성
+            var text=$("#text").val();
+            if(text==""){
+                alert("리뷰 내용을 입력하세요!");
+            }else{
+                if(!confirm(`${code}-${userid}-${text}`)) return;
+                $.ajax({
+                    type:"post",
+                    url:"/review/insert",
+                    data:{code:code,uid:userid,text:text},
+                    success:function(){
+                        alert("리뷰등록완료!");
+                        getreview();
+                    }
+                })
+            }
+        }
+    });
+    function getreview(){
+        $.ajax({
+            type: "get",
+            dataType:"json",
+            url:"/review/list",
+            data:{code:code},
+            success:function(data){
+            var template = Handlebars.compile($("#temp").html());
+            $("#review").html(template(data));
+
+            }
+        })
+    }
+</script>

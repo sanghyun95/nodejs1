@@ -1,0 +1,55 @@
+<div id="container"></div>
+<script id="temp" type="text/x-handlebars-template">
+    {{#each rows}}
+    <div class="box">
+        <img src="{{image}}" width="150" onclick="location.href='/food/read?code={{code}}'">
+        <div class="productname">{{code}}:{{title}}</div>
+        <div class="price">{{fprice}}원</div>
+    </div>
+    {{/each}}
+</script>
+<div id="buttons">
+    <button id="prev">이전</button>
+    <span id="curpage"></span>
+    <button id="next">다음</button>
+</div>
+
+<script>
+    var page=1;
+    getFood();
+    $("#prev").on("click", function(){
+        page--;
+        getFood();
+    });
+    $("#next").on("click", function(){
+        page++;
+        getFood();
+    });
+    function getFood(){
+        $.ajax({
+            type:"get",
+            dataType:"json",
+            url:"/food/list",
+            data:{page:page},
+            success:function(data){
+                var template = Handlebars.compile($("#temp").html());
+                $("#container").html(template(data));
+                var total=data.total;
+                var lastPage=Math.ceil(total/4);
+                $("#curpage").html(page + "/" + lastPage);
+                
+                if(page==1){
+                    $("#prev").attr("disabled",true);
+                }else{
+                    $("#prev").attr("disabled",false);
+                }
+
+                if(page==lastPage){
+                    $("#next").attr("disabled",true);
+                }else{
+                    $("#next").attr("disabled",false);
+                }
+            }
+        })
+    }
+</script>

@@ -1,0 +1,74 @@
+<style>
+    #container{width: 900px; overflow: hidden; margin: 0px auto;}
+    .box{float: left; width: 180px; height:200px;
+        border: 1px solid gray; padding: 10px;
+        margin: 10px; border-radius: 10px;}
+    img {cursor: pointer;}
+    
+</style>
+<div id="container"></div>
+<script id="temp" type="text/x-handlebars-template">
+    {{#each rows}}
+    <div class="box">
+        <img src="{{getSrc image}}" width=150 onclick="location.href='/product/read?code={{code}}'">
+        <div>{{code}}</div>
+        <div>{{name}}</div>
+        <div>{{fprice}}원</div>
+    </div>
+    {{/each}}
+</script>
+<script>
+    Handlebars.registerHelper("getSrc", function(image){
+        if(image){
+            return "/upload/" + image;
+        }else {
+            return "http://placehold.it/170x150";
+        }
+    });
+</script>
+<div id="buttons">
+    <button id="prev">이전</button>
+    <span id="curpage">1</span>
+    <button id="next">다음</button>
+</div>
+<script>
+    var page=1;
+    getProduct();
+    //이전버튼을 클릭한 경우
+    $("#prev").on("click", function(){
+        page--;
+        getProduct();        
+    });
+    //다음버튼을 클릭한 경우
+    $("#next").on("click", function(){
+        page++;
+        getProduct();        
+    });
+    function getProduct(){
+        $.ajax({
+           type:"get",
+           dataType:"json",
+           url:"/product/list",
+           data:{page:page},
+           success:function(data){
+               var template = Handlebars.compile($("#temp").html());
+                $("#container").html(template(data));
+                //마지막페이지
+                var lastPage=Math.ceil(data.total/4);
+                $("#curpage").html(page + '/' + lastPage);
+
+                if(page==1){
+                    $("#prev").attr("disabled", true);
+                }else{
+                    $("#prev").attr("disabled", false);
+                }
+
+                if(page==lastPage){
+                    $("#next").attr("disabled", true);
+                }else{
+                    $("#next").attr("disabled", false);
+                }
+           } 
+        });
+    }
+</script>

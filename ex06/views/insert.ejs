@@ -1,0 +1,63 @@
+<form name="frm" method="post" action="insert" enctype="multipart/form-data">
+    <table>
+        <tr>
+            <td class="title" width=100>상품코드</td>
+            <td width=500><input type="text" name="code" size="10" value="<%=code%>" readonly></td>
+        </tr>
+        <tr>
+            <td class="title" width=100>상품명</td>
+            <td width=500><input type="text" name="name" size="40"></td>
+        </tr>
+        <tr>
+            <td class="title" width=100>상품가격</td>
+            <td width=500><input type="text" name="price" size="40"></td>
+        </tr>
+        <tr>
+            <td class="title" width=100>상품사진</td>
+            <td width=500>
+                <img src="http://placehold.it/170x150" width="150" id="image">
+                <input type="file" name="image" size="50" style="display: none;"></td>
+        </tr>
+    </table>
+    <div id="buttons">
+        <input type="submit" value="상품등록" class="button">
+        <input type="reset" value="등록취소" class="button">
+        <input type="button" value="목록" class="button" onclick="location.href='/'">
+    </div>
+</form>
+
+<script>
+    //submit(등록)버튼을 누른 경우
+    $(frm).on("submit", function(e){
+        e.preventDefault();
+        var name=$(frm.name).val();
+        var price=$(frm.price).val();
+        var image=$(frm.image).val();
+        if(name==""){
+            alert("상품명을 입력하세요.");
+            $(frm.name).focus();
+        }else if(price==""){
+            alert("상품가격을 입력하세요.");
+            $(frm.price).focus();
+        }else if(image==""){
+            alert("이미지를 선택하세요.");
+        }else{
+            if(!confirm("상품을 등록하시겠습니까?")) return;
+            frm.submit();
+        }
+    });
+
+    //이미지 상자를 클릭한 경우
+    $("#image").on("click", function(){
+        $(frm.image).click();
+    });
+
+    //선택한 이미지 미리보기
+    $(frm.image).on("change",function(e){
+        var reader=new FileReader();
+        reader.onload=function(e){
+            $("#image").attr("src", e.target.result);
+        }
+        reader.readAsDataURL(this.files[0]);
+    });
+</script>
